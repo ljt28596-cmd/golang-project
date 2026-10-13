@@ -81,7 +81,7 @@ func (this *Server) Handler(conn net.Conn) {
 		select {
 		case <-isLive:
 			//说明用户活跃，应该重置定时器
-		case <-time.After(time.Second * 20):
+		case <-time.After(time.Second * 2000):
 			//这个触发则说明超时，将当前用户踢出
 			user.SendMsg("You got kicked out.\n")
 

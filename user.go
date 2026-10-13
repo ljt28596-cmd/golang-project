@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"strings"
 )
@@ -53,7 +54,14 @@ func (this *User) Offline() {
 
 // 给当前user发送消息
 func (this *User) SendMsg(msg string) {
-	this.conn.Write([]byte(msg))
+	content := msg + "\n"
+	this.conn.Write([]byte(content))
+}
+
+// 私聊功能
+func (this *User) PrivateChat(user *User, msg string) {
+	content := "[" + this.Name + "]" + " : " + msg + "\n"
+	user.conn.Write([]byte(content))
 }
 
 // 用户处理消息的业务
@@ -83,6 +91,23 @@ func (this *User) DoMessage(msg string) {
 			this.Name = newName
 			this.SendMsg("You have updated your username to: " + this.Name + "\n")
 		}
+	} else if len(msg) > 3 && msg[:3] == "to|" {
+		//用户私聊功能，消息格式：to|张三|你好
+
+		msgList := strings.Split(msg, "|")
+		obj := msgList[1]
+		content := msgList[2]
+		//判断私聊对象是否存在
+		user, ok := this.server.OnlineMap[obj]
+
+		if ok {
+			this.PrivateChat(user, content)
+			this.SendMsg(fmt.Sprintf("Successfully sent to Zhang San : %s", content))
+		} else {
+			this.SendMsg("User does not exist.")
+			return
+		}
+
 	} else {
 		this.server.BroadCast(this, msg)
 	}
