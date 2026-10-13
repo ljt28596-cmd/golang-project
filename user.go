@@ -90,10 +90,10 @@ func (this *User) DoMessage(msg string) {
 }
 
 // 监听当前User channel的方法，一旦有消息，就直接发送给客户端
-func (this *User) ListenMessage() string {
-	for {
-		msg := <-this.C
-
-		this.conn.Write([]byte(msg + "\n"))
+func (this *User) ListenMessage() {
+	for msg := range this.C {
+		if _, err := this.conn.Write([]byte(msg + "\n")); err != nil {
+			return
+		}
 	}
 }

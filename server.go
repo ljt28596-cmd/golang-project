@@ -89,7 +89,7 @@ func (this *Server) Handler(conn net.Conn) {
 			close(user.C)
 
 			//关闭连接
-			conn.Close()
+			conn.Close() //会唤醒conn.Read(buf),conn.Read(buf)返回n==0、err!=nil，走n==0分支，执行Offline()
 
 			return
 
