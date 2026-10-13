@@ -19,6 +19,7 @@ type Server struct {
 	Message chan string
 }
 
+// 把server的channel的消息发送给每个用户
 func (this *Server) ListenMessager() {
 	for {
 		msg := <-this.Message
@@ -31,9 +32,10 @@ func (this *Server) ListenMessager() {
 	}
 }
 
-// 广播消息的方法
+// 把消息发给server的channel
 func (this *Server) BroadCast(user *User, msg string) {
 	sendMsg := "[" + user.Addr + "]" + user.Name + ":" + msg
+	fmt.Println(sendMsg)
 	this.Message <- sendMsg
 }
 
@@ -41,14 +43,9 @@ func (this *Server) Handler(conn net.Conn) {
 	//...当前链接的业务
 	//fmt.Println("链接建立成功")
 
-	user := NewUser(conn)
-	//用户上线，将用户加入到OnlineMap中
-	this.mapLock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.mapLock.Unlock()
+	user := NewUser(conn, this)
 
-	//广播当前用户上线消息
-	this.BroadCast(user, "已上线")
+	user.Online()
 
 	//接收客户端发送的消息
 	go func() {
@@ -56,7 +53,7 @@ func (this *Server) Handler(conn net.Conn) {
 		for {
 			n, err := conn.Read(buf)
 			if n == 0 {
-				this.BroadCast(user, "下线")
+				user.Offline()
 				return
 			}
 			if err != nil && err != io.EOF {
@@ -66,7 +63,9 @@ func (this *Server) Handler(conn net.Conn) {
 
 			//提取用户的消息(去除'\n')
 			msg := string(buf[:n-1])
-			this.BroadCast(user, msg)
+
+			//用户针对msg进行消息处理
+			user.DoMessage(msg)
 		}
 	}()
 
