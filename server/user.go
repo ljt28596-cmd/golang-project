@@ -69,6 +69,7 @@ func (this *User) DoMessage(msg string) {
 	if msg == "who" {
 		//查询当前在线用户
 		this.server.mapLock.Lock()
+		this.SendMsg("Now users online below:\n")
 		for _, user := range this.server.OnlineMap {
 			onlineMsg := "[" + user.Addr + "]" + user.Name + ":" + "online...\n"
 			this.SendMsg(onlineMsg)

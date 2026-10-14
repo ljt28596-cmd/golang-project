@@ -119,8 +119,9 @@ func (this *Client) PublicChat() {
 
 }
 
+// 当前在线用户
 func (this *Client) SelectUsers() {
-	sendMsg := "who"
+	sendMsg := "who\n"
 	_, err := this.conn.Write([]byte(sendMsg))
 	if err != nil {
 		fmt.Println("conn Write err:", err)
@@ -134,16 +135,21 @@ func (this *Client) PrivateChat() {
 
 	fmt.Println(">>>>>>now the model is private chat")
 	this.SelectUsers()
-	fmt.Println("please input the receiver")
+	fmt.Println("please input the receiver,<input 'exit' to quit>")
 	fmt.Scanln(&obj)
-
+	if obj == "exit" {
+		return
+	}
 	fmt.Println("please input the content,<input 'exit' to quit,input 'switch' to change receiver>...")
 	fmt.Scanln(&content)
 	for content != "exit" {
 		if content == "switch" {
 			this.SelectUsers()
-			fmt.Println("please input the receiver")
+			fmt.Println("please input the receiver,<input 'exit' to quit>")
 			fmt.Scanln(&obj)
+			if obj == "exit" {
+				return
+			}
 			fmt.Println("switch receiver successfully...")
 		} else {
 			if len(content) != 0 {
