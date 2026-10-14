@@ -102,7 +102,7 @@ func (this *User) DoMessage(msg string) {
 
 		if ok {
 			this.PrivateChat(user, content)
-			this.SendMsg(fmt.Sprintf("Successfully sent to Zhang San : %s", content))
+			this.SendMsg(fmt.Sprintf("Successfully sent to %s : %s", obj, content))
 		} else {
 			this.SendMsg("User does not exist.")
 			return
